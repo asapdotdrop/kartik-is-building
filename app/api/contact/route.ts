@@ -3,30 +3,30 @@ import { NextResponse } from 'next/server'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-async function sendConfirmationViaSendGrid(
+async function sendConfirmationViaBrevo(
   toEmail: string,
   toName: string,
   htmlContent: string,
   subject: string,
 ) {
-  const res = await fetch('https://api.sendgrid.com/v3/mail/send', {
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
+      'api-key': process.env.BREVO_API_KEY!,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      personalizations: [{ to: [{ email: toEmail, name: toName }] }],
-      from: { email: 'asapdotdrop@gmail.com', name: 'Kartik' },
-      reply_to: { email: 'asapdotdrop@gmail.com' },
+      sender: { name: 'Kartik', email: 'asapdotdrop@gmail.com' },
+      to: [{ email: toEmail, name: toName }],
+      replyTo: { email: 'asapdotdrop@gmail.com' },
       subject,
-      content: [{ type: 'text/html', value: htmlContent }],
+      htmlContent,
     }),
   })
 
   if (!res.ok) {
     const err = await res.text()
-    throw new Error(`SendGrid error ${res.status}: ${err}`)
+    throw new Error(`Brevo error ${res.status}: ${err}`)
   }
 }
 
@@ -126,7 +126,7 @@ export async function POST(req: Request) {
         </div>
       `
 
-      await sendConfirmationViaSendGrid(
+      await sendConfirmationViaBrevo(
         email,
         name,
         confirmHtml,
