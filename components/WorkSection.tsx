@@ -15,15 +15,6 @@ const projects = [
   },
   {
     num: '/02',
-    name: 'IRON HOUSE',
-    type: 'Boutique Gym',
-    desc: '3D immersive gym website with illustrated equipment scene.',
-    tech: ['Next.js', 'Three.js', 'Framer Motion'],
-    url: 'https://iron-house-dusky.vercel.app/',
-    year: '2026',
-  },
-  {
-    num: '/03',
     name: 'NEXUS AI',
     type: 'SaaS Platform',
     desc: 'AI workflow automation platform with 3D geometric hero.',
@@ -32,12 +23,21 @@ const projects = [
     year: '2026',
   },
   {
-    num: '/04',
+    num: '/03',
     name: 'CASA MILANO',
     type: 'Restaurant',
     desc: 'Italian fine dining website with editorial luxury aesthetic.',
     tech: ['HTML', 'CSS', 'JS'],
     url: 'https://casa-milano.vercel.app/',
+    year: '2026',
+  },
+  {
+    num: '/04',
+    name: 'IRON HOUSE',
+    type: 'Boutique Gym',
+    desc: '3D immersive gym website with illustrated equipment scene.',
+    tech: ['Next.js', 'Three.js', 'Framer Motion'],
+    url: 'https://iron-house-dusky.vercel.app/',
     year: '2026',
   },
 ]
@@ -66,19 +66,6 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
     setShowPreview(false)
   }, [])
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    mouseDownPos.current = { x: e.clientX, y: e.clientY }
-  }, [])
-
-  const handleCardClick = useCallback((e: React.MouseEvent) => {
-    const dx = Math.abs(e.clientX - mouseDownPos.current.x)
-    const dy = Math.abs(e.clientY - mouseDownPos.current.y)
-    // Only navigate if the mouse didn't move much (click, not drag)
-    if (dx < 6 && dy < 6) {
-      window.open(project.url, '_blank', 'noopener,noreferrer')
-    }
-  }, [project.url])
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
@@ -88,16 +75,26 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
       className="flex-shrink-0 relative"
       style={{ width: '65vw', minWidth: '320px', maxWidth: '640px' }}
     >
+      <a
+        href={project.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        draggable={false}
+        className="block"
+        onMouseDown={(e) => { mouseDownPos.current = { x: e.clientX, y: e.clientY } }}
+        onClick={(e) => {
+          const dx = Math.abs(e.clientX - mouseDownPos.current.x)
+          const dy = Math.abs(e.clientY - mouseDownPos.current.y)
+          if (dx > 8 || dy > 8) e.preventDefault()
+        }}
+      >
       <div
         ref={cardRef}
         className="relative bg-[#0d0d0d] border border-white/[0.07] rounded-2xl overflow-hidden p-10 h-[70vh] min-h-[400px] flex flex-col justify-between cursor-pointer transition-all duration-300 hover:border-[#ff3c00]/60 hover:shadow-[0_0_40px_rgba(255,60,0,0.15)]"
         style={{ transition: 'transform 0.1s ease-out, box-shadow 0.3s ease, border-color 0.3s ease' }}
-        onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setShowPreview(true)}
         onMouseLeave={handleMouseLeave}
-        onMouseUp={handleCardClick}
-        data-cursor="View"
       >
         {/* Top row */}
         <div className="flex items-center justify-between">
@@ -137,15 +134,9 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
               </span>
             ))}
           </div>
-          <a
-            href={project.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-dm-mono text-white text-[0.7rem] tracking-[0.15em] hover:text-[#ff3c00] transition-colors duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <span className="font-dm-mono text-white text-[0.7rem] tracking-[0.15em] group-hover:text-[#ff3c00] transition-colors duration-200">
             View ↗
-          </a>
+          </span>
         </div>
 
         {/* Iframe preview on hover */}
@@ -183,6 +174,7 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
           )}
         </AnimatePresence>
       </div>
+      </a>
     </motion.div>
   )
 }
