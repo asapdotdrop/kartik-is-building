@@ -1,7 +1,16 @@
 import { Resend } from 'resend'
 import { NextResponse } from 'next/server'
+import nodemailer from 'nodemailer'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
+
+const gmailTransport = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'asapdotdrop@gmail.com',
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+})
 
 export async function POST(req: Request) {
   try {
@@ -61,52 +70,52 @@ export async function POST(req: Request) {
       `,
     })
 
-    // Confirmation email — send to Kartik's verified address but addressed to the visitor
-    // (Resend free tier only delivers to verified addresses; domain verification unlocks arbitrary recipients)
+    // Confirmation email via Gmail SMTP — sends to any visitor email
     try {
-      await resend.emails.send({
-        from: 'Kartik <onboarding@resend.dev>',
+      const confirmHtml = `
+        <div style="font-family: monospace; background: #050505; color: #ffffff; padding: 40px; border-radius: 12px; max-width: 600px;">
+          <h1 style="font-size: 2.5rem; margin: 0 0 4px; color: #ffffff; letter-spacing: 0.05em;">BUILD WITH</h1>
+          <h1 style="font-size: 2.5rem; margin: 0 0 32px; color: #ff3c00; letter-spacing: 0.05em;">KARTIK.</h1>
+
+          <p style="color: #aaaaaa; font-size: 1rem; line-height: 1.7; margin: 0 0 16px;">
+            Hey ${name.split(' ')[0]},
+          </p>
+          <p style="color: #aaaaaa; font-size: 1rem; line-height: 1.7; margin: 0 0 16px;">
+            Thanks for reaching out — I've received your message and will get back to you within <span style="color: #ffffff;">24–48 hours</span>.
+          </p>
+          <p style="color: #aaaaaa; font-size: 1rem; line-height: 1.7; margin: 0 0 32px;">
+            In the meantime, feel free to check out some of my recent work.
+          </p>
+
+          <div style="border-top: 1px solid #1a1a1a; padding-top: 24px; margin-bottom: 32px;">
+            <p style="color: #555555; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; margin: 0 0 16px;">Recent Projects</p>
+            ${[
+              ['IRON HOUSE', 'Boutique Gym', 'https://iron-house-dusky.vercel.app/'],
+              ['NEXUS AI', 'SaaS Platform', 'https://nexus-saas-mu-coral.vercel.app/'],
+              ['MAISON STORE', 'Luxury E-commerce', 'https://maison-store-gamma.vercel.app/'],
+            ].map(([pname, type, url]) => `
+              <a href="${url}" style="display: block; padding: 12px 0; border-bottom: 1px solid #1a1a1a; text-decoration: none;">
+                <span style="color: #ffffff; font-size: 0.9rem;">${pname}</span>
+                <span style="color: #555555; font-size: 0.7rem; letter-spacing: 0.1em; margin-left: 12px;">${type} ↗</span>
+              </a>
+            `).join('')}
+          </div>
+
+          <p style="color: #555555; font-size: 0.85rem; margin: 0;">
+            — Kartik<br/>
+            <a href="mailto:asapdotdrop@gmail.com" style="color: #ff3c00; text-decoration: none;">asapdotdrop@gmail.com</a>
+          </p>
+        </div>
+      `
+
+      await gmailTransport.sendMail({
+        from: `"Kartik" <asapdotdrop@gmail.com>`,
         to: email,
         replyTo: 'asapdotdrop@gmail.com',
         subject: `Got your message, ${name.split(' ')[0]} — I'll be in touch soon`,
-        html: `
-          <div style="font-family: monospace; background: #050505; color: #ffffff; padding: 40px; border-radius: 12px; max-width: 600px;">
-            <h1 style="font-size: 2.5rem; margin: 0 0 4px; color: #ffffff; letter-spacing: 0.05em;">BUILD WITH</h1>
-            <h1 style="font-size: 2.5rem; margin: 0 0 32px; color: transparent; -webkit-text-stroke: 2px #ff3c00; letter-spacing: 0.05em;">KARTIK.</h1>
-
-            <p style="color: #aaaaaa; font-size: 1rem; line-height: 1.7; margin: 0 0 16px;">
-              Hey ${name.split(' ')[0]},
-            </p>
-            <p style="color: #aaaaaa; font-size: 1rem; line-height: 1.7; margin: 0 0 16px;">
-              Thanks for reaching out — I've received your message and will get back to you within <span style="color: #ffffff;">24–48 hours</span>.
-            </p>
-            <p style="color: #aaaaaa; font-size: 1rem; line-height: 1.7; margin: 0 0 32px;">
-              In the meantime, feel free to check out some of my recent work.
-            </p>
-
-            <div style="border-top: 1px solid #1a1a1a; padding-top: 24px; margin-bottom: 32px;">
-              <p style="color: #555555; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; margin: 0 0 16px;">Recent Projects</p>
-              ${[
-                ['IRON HOUSE', 'Boutique Gym', 'https://iron-house-dusky.vercel.app/'],
-                ['NEXUS AI', 'SaaS Platform', 'https://nexus-saas-mu-coral.vercel.app/'],
-                ['MAISON STORE', 'Luxury E-commerce', 'https://maison-store-gamma.vercel.app/'],
-              ].map(([pname, type, url]) => `
-                <a href="${url}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #1a1a1a; text-decoration: none;">
-                  <span style="color: #ffffff; font-size: 0.9rem;">${pname}</span>
-                  <span style="color: #555555; font-size: 0.7rem; letter-spacing: 0.1em;">${type} ↗</span>
-                </a>
-              `).join('')}
-            </div>
-
-            <p style="color: #555555; font-size: 0.85rem; margin: 0;">
-              — Kartik<br/>
-              <a href="mailto:asapdotdrop@gmail.com" style="color: #ff3c00; text-decoration: none;">asapdotdrop@gmail.com</a>
-            </p>
-          </div>
-        `,
+        html: confirmHtml,
       })
     } catch (confirmErr) {
-      // Confirmation email failed (likely free-tier restriction — verify a domain on resend.com to fix)
       console.warn('Confirmation email not sent:', confirmErr)
     }
 
