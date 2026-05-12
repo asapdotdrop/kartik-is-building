@@ -1,16 +1,34 @@
 import { Resend } from 'resend'
 import { NextResponse } from 'next/server'
-import nodemailer from 'nodemailer'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-const gmailTransport = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'asapdotdrop@gmail.com',
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
-})
+async function sendConfirmationViaBrevo(
+  toEmail: string,
+  toName: string,
+  htmlContent: string,
+  subject: string,
+) {
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'api-key': process.env.BREVO_API_KEY!,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      sender: { name: 'Kartik', email: 'asapdotdrop@gmail.com' },
+      to: [{ email: toEmail, name: toName }],
+      replyTo: { email: 'asapdotdrop@gmail.com' },
+      subject,
+      htmlContent,
+    }),
+  })
+
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(`Brevo error ${res.status}: ${err}`)
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -20,7 +38,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Lead email to Kartik
+    // Lead email to Kartik via Resend
     await resend.emails.send({
       from: 'Build with Kartik <onboarding@resend.dev>',
       to: 'asapdotdrop@gmail.com',
@@ -70,7 +88,7 @@ export async function POST(req: Request) {
       `,
     })
 
-    // Confirmation email via Gmail SMTP — sends to any visitor email
+    // Confirmation email to visitor via Brevo (HTTP API — works from Vercel/AWS)
     try {
       const confirmHtml = `
         <div style="font-family: monospace; background: #050505; color: #ffffff; padding: 40px; border-radius: 12px; max-width: 600px;">
@@ -90,9 +108,9 @@ export async function POST(req: Request) {
           <div style="border-top: 1px solid #1a1a1a; padding-top: 24px; margin-bottom: 32px;">
             <p style="color: #555555; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; margin: 0 0 16px;">Recent Projects</p>
             ${[
+              ['MAISON STORE', 'Luxury E-commerce', 'https://maison-store-gamma.vercel.app/'],
               ['IRON HOUSE', 'Boutique Gym', 'https://iron-house-dusky.vercel.app/'],
               ['NEXUS AI', 'SaaS Platform', 'https://nexus-saas-mu-coral.vercel.app/'],
-              ['MAISON STORE', 'Luxury E-commerce', 'https://maison-store-gamma.vercel.app/'],
             ].map(([pname, type, url]) => `
               <a href="${url}" style="display: block; padding: 12px 0; border-bottom: 1px solid #1a1a1a; text-decoration: none;">
                 <span style="color: #ffffff; font-size: 0.9rem;">${pname}</span>
@@ -108,13 +126,12 @@ export async function POST(req: Request) {
         </div>
       `
 
-      await gmailTransport.sendMail({
-        from: `"Kartik" <asapdotdrop@gmail.com>`,
-        to: email,
-        replyTo: 'asapdotdrop@gmail.com',
-        subject: `Got your message, ${name.split(' ')[0]} — I'll be in touch soon`,
-        html: confirmHtml,
-      })
+      await sendConfirmationViaBrevo(
+        email,
+        name,
+        confirmHtml,
+        `Got your message, ${name.split(' ')[0]} — I'll be in touch soon`,
+      )
     } catch (confirmErr) {
       console.warn('Confirmation email not sent:', confirmErr)
     }
