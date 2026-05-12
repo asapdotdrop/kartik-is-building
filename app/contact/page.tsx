@@ -18,18 +18,40 @@ const budgets = ['Under $500', '$500–2000', '$2000–5000', '$5000+']
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
   const formRef = useRef<HTMLFormElement>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setSubmitting(true)
-    await new Promise((r) => setTimeout(r, 800))
-    setSubmitted(true)
-    setTimeout(() => {
-      setSubmitted(false)
+    setError('')
+
+    const form = e.currentTarget
+    const data = {
+      name:        (form.elements.namedItem('name')        as HTMLInputElement).value,
+      email:       (form.elements.namedItem('email')       as HTMLInputElement).value,
+      projectType: (form.elements.namedItem('projectType') as HTMLSelectElement).value,
+      budget:      (form.elements.namedItem('budget')      as HTMLSelectElement).value,
+      message:     (form.elements.namedItem('message')     as HTMLTextAreaElement).value,
+    }
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+
+      if (!res.ok) throw new Error('Failed')
+
+      setSubmitted(true)
       formRef.current?.reset()
-    }, 3000)
-    setSubmitting(false)
+      setTimeout(() => setSubmitted(false), 4000)
+    } catch {
+      setError('Something went wrong. Please email me directly at asapdotdrop@gmail.com')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -146,6 +168,7 @@ export default function ContactPage() {
                 </label>
                 <input
                   type="text"
+                  name="name"
                   required
                   className="w-full bg-transparent border-b border-white/[0.12] focus:border-[#ff3c00] text-white font-outfit text-[1rem] py-2 outline-none transition-colors duration-200 placeholder:text-[#333]"
                   placeholder="Your name"
@@ -159,6 +182,7 @@ export default function ContactPage() {
                 </label>
                 <input
                   type="email"
+                  name="email"
                   required
                   className="w-full bg-transparent border-b border-white/[0.12] focus:border-[#ff3c00] text-white font-outfit text-[1rem] py-2 outline-none transition-colors duration-200 placeholder:text-[#333]"
                   placeholder="your@email.com"
@@ -171,6 +195,7 @@ export default function ContactPage() {
                   Project Type
                 </label>
                 <select
+                  name="projectType"
                   required
                   className="w-full bg-[#0d0d0d] border-b border-white/[0.12] focus:border-[#ff3c00] text-white font-outfit text-[1rem] py-2 outline-none transition-colors duration-200 appearance-none"
                 >
@@ -187,6 +212,7 @@ export default function ContactPage() {
                   Budget
                 </label>
                 <select
+                  name="budget"
                   required
                   className="w-full bg-[#0d0d0d] border-b border-white/[0.12] focus:border-[#ff3c00] text-white font-outfit text-[1rem] py-2 outline-none transition-colors duration-200 appearance-none"
                 >
@@ -203,6 +229,7 @@ export default function ContactPage() {
                   Message
                 </label>
                 <textarea
+                  name="message"
                   rows={5}
                   required
                   className="w-full bg-transparent border-b border-white/[0.12] focus:border-[#ff3c00] text-white font-outfit text-[1rem] py-2 outline-none transition-colors duration-200 placeholder:text-[#333] resize-none"
@@ -210,15 +237,22 @@ export default function ContactPage() {
                 />
               </div>
 
+              {/* Error */}
+              {error && (
+                <p className="font-dm-mono text-red-400 text-[0.7rem] tracking-[0.1em] leading-relaxed">
+                  {error}
+                </p>
+              )}
+
               {/* Submit */}
               <motion.button
                 type="submit"
-                disabled={submitting}
-                className="w-full font-bebas text-white tracking-[0.15em] py-5 rounded-full text-[1.3rem] transition-all duration-300"
+                disabled={submitting || submitted}
+                className="w-full font-bebas text-white tracking-[0.15em] py-5 rounded-full text-[1.3rem] transition-all duration-300 disabled:opacity-80"
                 style={{
                   background: submitted ? '#22c55e' : '#ff3c00',
                 }}
-                whileHover={{ scale: 1.02 }}
+                whileHover={{ scale: submitting || submitted ? 1 : 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 {submitted ? '✓ Message Sent!' : submitting ? 'Sending...' : 'Send Message →'}
