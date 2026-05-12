@@ -3,30 +3,30 @@ import { NextResponse } from 'next/server'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-async function sendConfirmationViaBrevo(
+async function sendConfirmationViaSendGrid(
   toEmail: string,
   toName: string,
   htmlContent: string,
   subject: string,
 ) {
-  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+  const res = await fetch('https://api.sendgrid.com/v3/mail/send', {
     method: 'POST',
     headers: {
-      'api-key': process.env.BREVO_API_KEY!,
+      Authorization: `Bearer ${process.env.SENDGRID_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      sender: { name: 'Kartik', email: 'asapdotdrop@gmail.com' },
-      to: [{ email: toEmail, name: toName }],
-      replyTo: { email: 'asapdotdrop@gmail.com' },
+      personalizations: [{ to: [{ email: toEmail, name: toName }] }],
+      from: { email: 'asapdotdrop@gmail.com', name: 'Kartik' },
+      reply_to: { email: 'asapdotdrop@gmail.com' },
       subject,
-      htmlContent,
+      content: [{ type: 'text/html', value: htmlContent }],
     }),
   })
 
   if (!res.ok) {
     const err = await res.text()
-    throw new Error(`Brevo error ${res.status}: ${err}`)
+    throw new Error(`SendGrid error ${res.status}: ${err}`)
   }
 }
 
@@ -126,19 +126,17 @@ export async function POST(req: Request) {
         </div>
       `
 
-      await sendConfirmationViaBrevo(
+      await sendConfirmationViaSendGrid(
         email,
         name,
         confirmHtml,
         `Got your message, ${name.split(' ')[0]} — I'll be in touch soon`,
       )
     } catch (confirmErr) {
-      const errMsg = confirmErr instanceof Error ? confirmErr.message : String(confirmErr)
-      console.warn('Confirmation email not sent:', errMsg)
-      return NextResponse.json({ success: true, confirmError: errMsg })
+      console.warn('Confirmation email not sent:', confirmErr)
     }
 
-    return NextResponse.json({ success: true, confirmError: null })
+    return NextResponse.json({ success: true })
   } catch (err) {
     console.error('Email error:', err)
     return NextResponse.json({ error: 'Failed to send email' }, { status: 500 })
