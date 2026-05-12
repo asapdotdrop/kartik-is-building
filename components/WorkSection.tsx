@@ -1,224 +1,244 @@
-"use client";
+'use client'
 
-import { useState, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useRef, useState, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const projects = [
   {
-    num: "01",
-    title: "Iron House",
-    type: "Boutique Gym",
-    tech: "Next.js · Three.js",
-    year: "2025",
-    url: "https://iron-house-dusky.vercel.app/",
-    accent: "#ff5722",
+    num: '/01',
+    name: 'IRON HOUSE',
+    type: 'Boutique Gym',
+    desc: '3D immersive gym website with illustrated equipment scene.',
+    tech: ['Next.js', 'Three.js', 'Framer Motion'],
+    url: 'https://iron-house-dusky.vercel.app/',
+    year: '2026',
   },
   {
-    num: "02",
-    title: "Nexus AI",
-    type: "SaaS Platform",
-    tech: "Next.js · AI Workflows",
-    year: "2025",
-    url: "https://nexus-saas-mu-coral.vercel.app/",
-    accent: "#ff5722",
+    num: '/02',
+    name: 'NEXUS AI',
+    type: 'SaaS Platform',
+    desc: 'AI workflow automation platform with 3D geometric hero.',
+    tech: ['Next.js', 'Three.js', 'AI'],
+    url: 'https://nexus-saas-mu-coral.vercel.app/',
+    year: '2026',
   },
   {
-    num: "03",
-    title: "Maison Store",
-    type: "Luxury E-commerce",
-    tech: "Next.js · Fashion",
-    year: "2025",
-    url: "https://maison-store-gamma.vercel.app/",
-    accent: "#ff5722",
+    num: '/03',
+    name: 'MAISON STORE',
+    type: 'Luxury E-commerce',
+    desc: 'Premium fashion store with immersive 3D product experience.',
+    tech: ['Next.js', 'Three.js', 'Zustand'],
+    url: 'https://maison-store-gamma.vercel.app/',
+    year: '2026',
   },
   {
-    num: "04",
-    title: "Casa Milano",
-    type: "Restaurant",
-    tech: "HTML · CSS · Editorial",
-    year: "2025",
-    url: "https://casa-milano.vercel.app/",
-    accent: "#ff5722",
+    num: '/04',
+    name: 'CASA MILANO',
+    type: 'Restaurant',
+    desc: 'Italian fine dining website with editorial luxury aesthetic.',
+    tech: ['HTML', 'CSS', 'JS'],
+    url: 'https://casa-milano.vercel.app/',
+    year: '2026',
   },
-];
+]
 
-export default function WorkSection() {
-  const [hovered, setHovered] = useState<number | null>(null);
-  const [cursor,  setCursor]  = useState({ x: 0, y: 0 });
-  const sectionRef = useRef<HTMLElement>(null);
+function ProjectCard({ project, index }: { project: typeof projects[0]; index: number }) {
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [previewPos, setPreviewPos] = useState({ x: 0, y: 0 })
+  const [showPreview, setShowPreview] = useState(false)
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    const rect = sectionRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    setCursor({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  }, []);
+    const card = cardRef.current
+    if (!card) return
+
+    const rect = card.getBoundingClientRect()
+    const x = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2)
+    const y = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2)
+
+    card.style.transform = `perspective(1000px) rotateX(${-y * 8}deg) rotateY(${x * 8}deg) translateZ(10px)`
+    setPreviewPos({ x: e.clientX - rect.left, y: e.clientY - rect.top })
+  }, [])
+
+  const handleMouseLeave = useCallback(() => {
+    const card = cardRef.current
+    if (card) card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)'
+    setShowPreview(false)
+  }, [])
 
   return (
-    <section
-      id="work"
-      ref={sectionRef}
-      className="max-w-[1400px] mx-auto px-6 md:px-12 py-28 md:py-44 relative"
-      onMouseMove={handleMouseMove}
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.1 }}
+      transition={{ duration: 0.8, delay: index * 0.08 }}
+      className="flex-shrink-0 relative"
+      style={{ width: '65vw', minWidth: '320px', maxWidth: '640px' }}
     >
-      {/* Header */}
-      <div className="flex items-end justify-between mb-12 md:mb-20">
-        <div>
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.6 }}
-            className="font-dm-mono text-[10px] uppercase tracking-[0.2em] text-[#4a463e] mb-4"
-          >
-            — Work
-          </motion.p>
-          <div className="overflow-hidden">
-          <motion.h2
-            initial={{ y: "100%" }}
-            whileInView={{ y: "0%" }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] }}
-            className="font-fraunces font-light text-[#f5f1e8] leading-[1.0] tracking-[-0.025em]"
-            style={{ fontSize: "clamp(2.4rem, 5.5vw, 5.5rem)" }}
-          >
-            Selected <span className="italic text-[#8a8478]">work.</span>
-          </motion.h2>
-          </div>
+      <div
+        ref={cardRef}
+        className="relative bg-[#0d0d0d] border border-white/[0.07] rounded-2xl overflow-hidden p-10 h-[70vh] min-h-[400px] flex flex-col justify-between cursor-pointer transition-all duration-300 hover:border-[#ff3c00]/60 hover:shadow-[0_0_40px_rgba(255,60,0,0.15)]"
+        style={{ transition: 'transform 0.1s ease-out, box-shadow 0.3s ease, border-color 0.3s ease' }}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={() => setShowPreview(true)}
+        onMouseLeave={handleMouseLeave}
+        data-cursor="View"
+      >
+        {/* Top row */}
+        <div className="flex items-center justify-between">
+          <span className="font-dm-mono text-[#555555] text-[0.7rem] tracking-[0.2em]">
+            {project.num}
+          </span>
+          <span className="font-dm-mono text-[#555555] text-[0.7rem] tracking-[0.2em]">
+            {project.year}
+          </span>
         </div>
-        <motion.span
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="hidden md:block font-dm-mono text-[10px] tracking-[0.18em] text-[#4a463e] uppercase"
-        >
-          {projects.length} projects
-        </motion.span>
-      </div>
 
-      {/* Project rows */}
-      <div className="border-t border-[rgba(245,241,232,0.07)]">
-        {projects.map((project, i) => (
-          <motion.div
-            key={project.num}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.1 }}
-            transition={{ duration: 0.55, delay: 0.07 * i, ease: [0.76, 0, 0.24, 1] }}
+        {/* Middle */}
+        <div className="flex-1 flex flex-col justify-center">
+          <h3
+            className="font-bebas text-white leading-none mb-4"
+            style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)' }}
           >
-            <a
-              href={project.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center border-b border-[rgba(245,241,232,0.07)] relative overflow-hidden"
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered(null)}
-              data-hover="View"
-            >
-              {/* Background fill on hover */}
-              <motion.div
-                className="absolute inset-0 bg-[#0f0e0d]"
-                initial={{ scaleY: 0 }}
-                animate={{ scaleY: hovered === i ? 1 : 0 }}
-                transition={{ duration: 0.45, ease: [0.76, 0, 0.24, 1] }}
-                style={{ transformOrigin: "bottom" }}
-              />
+            {project.name}
+          </h3>
+          <span className="inline-flex items-center font-dm-mono text-[#ff3c00] text-[0.65rem] uppercase tracking-[0.2em] border border-[#ff3c00]/50 rounded-full px-3 py-1 mb-4 w-fit">
+            {project.type}
+          </span>
+          <p className="font-outfit text-[#aaaaaa] text-[0.95rem] leading-relaxed max-w-sm line-clamp-2">
+            {project.desc}
+          </p>
+        </div>
 
-              <div
-                className="relative w-full py-7 md:py-9 flex items-center gap-6 md:gap-0 transition-all duration-300 ease-[cubic-bezier(0.76,0,0.24,1)]"
-                style={{ paddingLeft: hovered === i ? "1.5rem" : "0" }}
+        {/* Bottom row */}
+        <div className="flex items-end justify-between">
+          <div className="flex flex-wrap gap-2">
+            {project.tech.map((t) => (
+              <span
+                key={t}
+                className="font-dm-mono text-[#555555] text-[0.65rem] uppercase tracking-wider"
               >
-                {/* Number */}
-                <span className="font-dm-mono text-[10px] tracking-[0.18em] text-[#4a463e] w-[50px] shrink-0">
-                  /{project.num}
-                </span>
+                {t}
+              </span>
+            ))}
+          </div>
+          <a
+            href={project.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-dm-mono text-white text-[0.7rem] tracking-[0.15em] hover:text-[#ff3c00] transition-colors duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            View ↗
+          </a>
+        </div>
 
-                {/* Title */}
-                <span
-                  className="font-fraunces font-light text-[#f5f1e8] flex-1 min-w-0 leading-none tracking-[-0.02em]"
-                  style={{ fontSize: "clamp(1.4rem, 3vw, 2.8rem)" }}
-                >
-                  {project.title}
-                </span>
-
-                {/* Type */}
-                <span className="hidden lg:block font-dm-mono text-[10px] uppercase tracking-[0.14em] text-[#8a8478] w-[170px] shrink-0">
-                  {project.type}
-                </span>
-
-                {/* Tech */}
-                <span className="hidden xl:block font-dm-mono text-[10px] tracking-[0.12em] text-[#4a463e] w-[220px] shrink-0">
-                  {project.tech}
-                </span>
-
-                {/* Year */}
-                <span className="hidden md:block font-dm-mono text-[10px] tracking-[0.14em] text-[#4a463e] w-[60px] shrink-0 text-right">
-                  {project.year}
-                </span>
-
-                {/* Arrow */}
-                <span
-                  className="text-lg ml-4 md:ml-8 shrink-0 transition-all duration-300"
-                  style={{
-                    transform: hovered === i ? "rotate(-45deg) scale(1.1)" : "rotate(0deg) scale(1)",
-                    color: hovered === i ? "#ff5722" : "#4a463e",
-                  }}
-                >
-                  ↗
-                </span>
+        {/* Iframe preview on hover */}
+        <AnimatePresence>
+          {showPreview && (
+            <motion.div
+              className="absolute pointer-events-none z-20"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.2 }}
+              style={{
+                left: Math.min(previewPos.x + 16, 300),
+                top: Math.max(previewPos.y - 110, 10),
+                width: 240,
+                height: 160,
+              }}
+            >
+              <div className="w-full h-full rounded-lg overflow-hidden border border-white/10 bg-[#0d0d0d] shadow-2xl">
+                <div className="h-6 bg-[#1a1a1a] flex items-center px-2 gap-1">
+                  {['#ff5f57','#ffbd2e','#28c840'].map((c) => (
+                    <span key={c} className="w-2 h-2 rounded-full" style={{ background: c }} />
+                  ))}
+                </div>
+                <div className="relative" style={{ height: 'calc(100% - 24px)', overflow: 'hidden' }}>
+                  <iframe
+                    src={project.url}
+                    style={{ width: '200%', height: '200%', transform: 'scale(0.5)', transformOrigin: 'top left', border: 'none', pointerEvents: 'none' }}
+                    loading="lazy"
+                    title={project.name}
+                  />
+                </div>
               </div>
-            </a>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  )
+}
+
+export default function WorkSection() {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const dragStart = useRef({ x: 0, scrollLeft: 0 })
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true)
+    dragStart.current = { x: e.clientX, scrollLeft: scrollRef.current?.scrollLeft ?? 0 }
+  }
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollRef.current) return
+    const dx = e.clientX - dragStart.current.x
+    scrollRef.current.scrollLeft = dragStart.current.scrollLeft - dx
+  }
+  const onMouseUp = () => setIsDragging(false)
+
+  return (
+    <section id="work" className="py-28 md:py-44">
+      {/* Header */}
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 mb-16">
+        <motion.p
+          className="font-dm-mono text-[#ff3c00] text-[0.75rem] uppercase tracking-[0.3em] mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          SELECTED
+        </motion.p>
+        <div className="overflow-hidden">
+          <motion.div
+            initial={{ y: '100%' }}
+            whileInView={{ y: '0%' }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] }}
+          >
+            <span
+              className="font-bebas text-white leading-none block"
+              style={{ fontSize: 'clamp(4rem, 12vw, 10rem)' }}
+            >
+              WORK.
+            </span>
           </motion.div>
-        ))}
+        </div>
+        <p className="font-fraunces italic text-[#555555] text-xl mt-2">(2026)</p>
       </div>
 
-      {/* Floating preview window */}
-      <AnimatePresence>
-        {hovered !== null && (
-          <motion.div
-            key={hovered}
-            className="absolute pointer-events-none z-50 hidden lg:block"
-            initial={{ opacity: 0, scale: 0.85, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.85, y: 10 }}
-            transition={{ duration: 0.25, ease: [0.76, 0, 0.24, 1] }}
-            style={{
-              left: Math.min(cursor.x + 24, (sectionRef.current?.offsetWidth ?? 800) - 400),
-              top: cursor.y - 120,
-              width: 380,
-              height: 240,
-            }}
-          >
-            <div className="w-full h-full rounded-lg overflow-hidden border border-[rgba(245,241,232,0.08)] bg-[#0f0e0d] shadow-2xl relative">
-              {/* Browser chrome */}
-              <div className="h-8 bg-[#1a1917] flex items-center px-3 gap-1.5 border-b border-[rgba(245,241,232,0.05)]">
-                {["#ff5f57","#ffbd2e","#28c840"].map((c) => (
-                  <span key={c} className="w-2.5 h-2.5 rounded-full" style={{ background: c }} />
-                ))}
-                <span className="ml-3 font-dm-mono text-[9px] text-[#4a463e] truncate">
-                  {projects[hovered].url}
-                </span>
-              </div>
-              <div className="relative" style={{ height: "calc(100% - 32px)" }}>
-                <iframe
-                  src={projects[hovered].url}
-                  className="absolute inset-0"
-                  style={{
-                    width: "200%",
-                    height: "200%",
-                    transform: "scale(0.5)",
-                    transformOrigin: "top left",
-                    border: "none",
-                    pointerEvents: "none",
-                  }}
-                  title={projects[hovered].title}
-                  loading="lazy"
-                />
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Horizontal scroll */}
+      <div
+        ref={scrollRef}
+        className="flex gap-6 overflow-x-scroll no-scrollbar px-6 md:px-12 scroll-smooth"
+        style={{
+          scrollSnapType: 'x mandatory',
+          cursor: isDragging ? 'grabbing' : 'grab',
+        }}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
+      >
+        {projects.map((project, i) => (
+          <div key={project.num} style={{ scrollSnapAlign: 'start' }}>
+            <ProjectCard project={project} index={i} />
+          </div>
+        ))}
+        {/* Trailing spacer */}
+        <div className="flex-shrink-0 w-6 md:w-12" />
+      </div>
     </section>
-  );
+  )
 }

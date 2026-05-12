@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
-import { Fraunces, DM_Mono, Outfit } from "next/font/google";
+import { Bebas_Neue, Fraunces, DM_Mono, Outfit } from "next/font/google";
 import "./globals.css";
-import CustomCursor from "@/components/CustomCursor";
 import PageLoader from "@/components/PageLoader";
 import SmoothScroll from "@/components/SmoothScroll";
+
+const bebas = Bebas_Neue({
+  subsets: ["latin"],
+  variable: "--font-bebas",
+  weight: "400",
+  display: "swap",
+});
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -41,12 +47,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${fraunces.variable} ${dmMono.variable} ${outfit.variable} antialiased bg-[#080808] text-[#f5f1e8]`}
+        className={`${bebas.variable} ${fraunces.variable} ${dmMono.variable} ${outfit.variable} antialiased bg-[#050505] text-white`}
       >
-        <div className="grain" aria-hidden="true" />
-        <div className="vignette" aria-hidden="true" />
         <PageLoader />
-        <CustomCursor />
         <SmoothScroll>{children}</SmoothScroll>
       </body>
     </html>

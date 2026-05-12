@@ -1,26 +1,19 @@
-"use client";
-
-import { motion } from "framer-motion";
+'use client'
 
 const items = [
-  "Full Stack Development",
-  "AI Agents",
-  "Voice Automation",
-  "Modern Web",
-  "Available for Hire",
-];
+  'FULL STACK DEV',
+  'AI CHATBOTS',
+  'VOICE AGENTS',
+  'E-COMMERCE',
+  'SAAS PLATFORMS',
+  'LANDING PAGES',
+]
 
-const doubled = [...items, ...items];
+const doubled = [...items, ...items]
 
 export default function MarqueeSection() {
   return (
-    <motion.div
-      className="border-y border-[rgba(245,241,232,0.07)] py-5 overflow-hidden"
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true, amount: 0.5 }}
-      transition={{ duration: 0.8 }}
-    >
+    <div className="border-y border-white/[0.08] py-5 overflow-hidden bg-[#0d0d0d]">
       <div className="flex whitespace-nowrap group">
         {[0, 1].map((key) => (
           <div
@@ -31,14 +24,14 @@ export default function MarqueeSection() {
             {doubled.map((item, i) => (
               <span key={i} className="flex items-center">
                 <span
-                  className="font-fraunces italic font-light text-[#d4cebd] hover:text-[#f5f1e8] transition-colors duration-300 cursor-default"
-                  style={{ fontSize: "clamp(1.4rem, 2.8vw, 2.8rem)" }}
+                  className="font-bebas text-white hover:text-[#ff3c00] transition-colors duration-300 cursor-default tracking-wider"
+                  style={{ fontSize: 'clamp(2rem, 5vw, 4rem)' }}
                 >
                   {item}
                 </span>
                 <span
-                  className="mx-8 md:mx-12 text-[#ff5722] opacity-80"
-                  style={{ fontSize: "clamp(1rem, 1.8vw, 1.8rem)" }}
+                  className="mx-6 md:mx-10 text-[#ff3c00]"
+                  style={{ fontSize: 'clamp(1.2rem, 2.5vw, 2.5rem)' }}
                 >
                   ✦
                 </span>
@@ -47,6 +40,6 @@ export default function MarqueeSection() {
           </div>
         ))}
       </div>
-    </motion.div>
-  );
+    </div>
+  )
 }
