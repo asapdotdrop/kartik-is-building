@@ -46,6 +46,7 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
   const cardRef = useRef<HTMLDivElement>(null)
   const [previewPos, setPreviewPos] = useState({ x: 0, y: 0 })
   const [showPreview, setShowPreview] = useState(false)
+  const mouseDownPos = useRef({ x: 0, y: 0 })
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     const card = cardRef.current
@@ -65,6 +66,19 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
     setShowPreview(false)
   }, [])
 
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    mouseDownPos.current = { x: e.clientX, y: e.clientY }
+  }, [])
+
+  const handleCardClick = useCallback((e: React.MouseEvent) => {
+    const dx = Math.abs(e.clientX - mouseDownPos.current.x)
+    const dy = Math.abs(e.clientY - mouseDownPos.current.y)
+    // Only navigate if the mouse didn't move much (click, not drag)
+    if (dx < 6 && dy < 6) {
+      window.open(project.url, '_blank', 'noopener,noreferrer')
+    }
+  }, [project.url])
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
@@ -78,9 +92,11 @@ function ProjectCard({ project, index }: { project: typeof projects[0]; index: n
         ref={cardRef}
         className="relative bg-[#0d0d0d] border border-white/[0.07] rounded-2xl overflow-hidden p-10 h-[70vh] min-h-[400px] flex flex-col justify-between cursor-pointer transition-all duration-300 hover:border-[#ff3c00]/60 hover:shadow-[0_0_40px_rgba(255,60,0,0.15)]"
         style={{ transition: 'transform 0.1s ease-out, box-shadow 0.3s ease, border-color 0.3s ease' }}
+        onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setShowPreview(true)}
         onMouseLeave={handleMouseLeave}
+        onMouseUp={handleCardClick}
         data-cursor="View"
       >
         {/* Top row */}
