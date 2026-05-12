@@ -58,14 +58,14 @@ export default function ContactPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#050505] relative overflow-hidden">
+    <main className="min-h-screen bg-[#050505] relative overflow-x-hidden">
       {/* Video background */}
       <video
         autoPlay
         muted
         loop
         playsInline
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full min-h-full object-cover"
         style={{ opacity: 0.45, filter: 'saturate(0.6) contrast(1.1) brightness(0.85)', zIndex: 0 }}
       >
         <source src="/14520076_1920_1080_24fps.mp4" type="video/mp4" />
