@@ -133,10 +133,11 @@ export async function POST(req: Request) {
         `Got your message, ${name.split(' ')[0]} — I'll be in touch soon`,
       )
     } catch (confirmErr) {
-      console.warn('Confirmation email not sent:', confirmErr)
+      const errMsg = confirmErr instanceof Error ? confirmErr.message : String(confirmErr)
+      return NextResponse.json({ success: true, confirmError: errMsg })
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ success: true, confirmError: null })
   } catch (err) {
     console.error('Email error:', err)
     return NextResponse.json({ error: 'Failed to send email' }, { status: 500 })
