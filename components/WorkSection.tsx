@@ -6,6 +6,15 @@ import { motion, AnimatePresence } from 'framer-motion'
 const projects = [
   {
     num: '/01',
+    name: 'MAISON STORE',
+    type: 'Luxury E-commerce',
+    desc: 'Premium fashion store with immersive 3D product experience.',
+    tech: ['Next.js', 'Three.js', 'Zustand'],
+    url: 'https://maison-store-gamma.vercel.app/',
+    year: '2026',
+  },
+  {
+    num: '/02',
     name: 'IRON HOUSE',
     type: 'Boutique Gym',
     desc: '3D immersive gym website with illustrated equipment scene.',
@@ -14,21 +23,12 @@ const projects = [
     year: '2026',
   },
   {
-    num: '/02',
+    num: '/03',
     name: 'NEXUS AI',
     type: 'SaaS Platform',
     desc: 'AI workflow automation platform with 3D geometric hero.',
     tech: ['Next.js', 'Three.js', 'AI'],
     url: 'https://nexus-saas-mu-coral.vercel.app/',
-    year: '2026',
-  },
-  {
-    num: '/03',
-    name: 'MAISON STORE',
-    type: 'Luxury E-commerce',
-    desc: 'Premium fashion store with immersive 3D product experience.',
-    tech: ['Next.js', 'Three.js', 'Zustand'],
-    url: 'https://maison-store-gamma.vercel.app/',
     year: '2026',
   },
   {
